@@ -20,10 +20,11 @@ class Tag
     private ?string $nom = null;
 
     #[ORM\Column(length: 7)]
+
     #[Assert\Regex(
-        pattern: '^#[0-9A-Fa-f]{6}$',
-        message: 'La couleur doit être un code hexadécimal (#3498DB)'
-    )]
+    pattern: "/^#[0-9A-Fa-f]{6}$/",
+    message: "Couleur invalide (format attendu: #FF5733)"
+)]
     private ?string $couleur = null;
 
     /**

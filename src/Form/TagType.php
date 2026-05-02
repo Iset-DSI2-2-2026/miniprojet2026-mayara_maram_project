@@ -17,10 +17,11 @@ class TagType extends AbstractType
             ->add('nom')
             ->add('couleur')
             ->add('livres', EntityType::class, [
-                'class' => Livre::class,
-                'choice_label' => 'id',
-                'multiple' => true,
-            ])
+    'class' => Livre::class,
+    'choice_label' => 'titre', // mieux que id
+    'multiple' => true,
+    'expanded' => true, // 🔥 important
+])
         ;
     }
 

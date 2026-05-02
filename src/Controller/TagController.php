@@ -62,7 +62,7 @@ final class TagController extends AbstractController
             $this->addFlash('danger', 'Token CSRF invalide');
         }
 
-        return $this->redirectToRoute('app_tag_index');
+        return $this->redirectToRoute('app_tag');
     }
 
 

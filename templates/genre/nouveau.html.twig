@@ -19,7 +19,7 @@
 
     <div class="card p-4 mt-3">
 
-        {{ form_start(formulaire) }}
+        {{ form_start(formulaire,{ attr: { novalidate: 'novalidate' } }) }}
 
             {{ form_row(formulaire.nom, {
                 attr: { class: 'form-control' }
