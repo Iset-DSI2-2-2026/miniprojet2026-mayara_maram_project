@@ -1,0 +1,28 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+<h1>📘 Formulaire Livre</h1>
+
+<div class="card p-4 shadow">
+
+   {{ form_start(formulaire) }}
+
+
+{{ form_row(formulaire.titre) }}
+{{ form_row(formulaire.resume) }}      {# ✅ AJOUT #}
+{{ form_row(formulaire.isbn) }}        {# ✅ AJOUT #}
+{{ form_row(formulaire.nbPages) }}     {# ✅ AJOUT #}
+{{ form_row(formulaire.datePublication) }}
+{{ form_row(formulaire.auteur) }}
+{{ form_row(formulaire.genre) }}
+{{ form_row(formulaire.tags) }}
+{{ form_row(formulaire.disponible) }}
+{{ form_row(formulaire.imageFile) }}
+
+{{ form_row(formulaire.enregistrer) }}
+
+{{ form_end(formulaire) }}
+</div>
+
+{% endblock %}

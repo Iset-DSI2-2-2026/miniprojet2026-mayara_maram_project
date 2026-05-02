@@ -1,47 +1,66 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Livre index{% endblock %}
+{% block title %}Liste des livres{% endblock %}
 
 {% block body %}
-    <h1>Livre index</h1>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Titre</th>
-                <th>Resume</th>
-                <th>Isbn</th>
-                <th>NbPages</th>
-                <th>DatePublication</th>
-                <th>Disponible</th>
-                <th>ImageName</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for livre in livres %}
-            <tr>
-                <td>{{ livre.id }}</td>
-                <td>{{ livre.titre }}</td>
-                <td>{{ livre.resume }}</td>
-                <td>{{ livre.isbn }}</td>
-                <td>{{ livre.nbPages }}</td>
-                <td>{{ livre.datePublication ? livre.datePublication|date('Y-m-d') : '' }}</td>
-                <td>{{ livre.disponible ? 'Yes' : 'No' }}</td>
-                <td>{{ livre.imageName }}</td>
-                <td>
-                    <a href="{{ path('app_livre_show', {'id': livre.id}) }}">show</a>
-                    <a href="{{ path('app_livre_edit', {'id': livre.id}) }}">edit</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="9">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+<h1>📚 Liste des livres</h1>
 
-    <a href="{{ path('app_livre_new') }}">Create new</a>
+<table class="table table-striped mt-4">
+    <thead class="table-dark">
+        <tr>
+            <th>Image</th>
+            <th>Titre</th>
+            <th>Auteur</th>
+            <th>Genre</th>
+            <th>Pages</th>
+            <th>Statut</th>
+            <th>Tags</th>
+        </tr>
+    </thead>
+
+    <tbody>
+    {% for livre in livres %}
+        <tr>
+            <td>
+                {% if livre.imageName %}
+                    <img src="/uploads/livres/{{ livre.imageName }}" width="60">
+                {% endif %}
+            </td>
+
+            <td>{{ livre.titre }}</td>
+
+            <td>
+                {{ livre.auteur.nom }} {{ livre.auteur.prenom }}
+            </td>
+
+            <td>
+                <span class="badge" style="background-color: {{ livre.genre.couleur }}">
+                    {{ livre.genre.nom }}
+                </span>
+            </td>
+
+            <td>{{ livre.nbPages }}</td>
+
+            <td>
+                {% if livre.disponible %}
+                    <span class="badge bg-success">🟢 Disponible</span>
+                {% else %}
+                    <span class="badge bg-danger">🔴 Indisponible</span>
+                {% endif %}
+            </td>
+
+            <td>
+                {% for tag in livre.tags %}
+                    <span class="badge" style="background-color: {{ tag.couleur }}">
+                        {{ tag.nom }}
+                    </span>
+                {% endfor %}
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+
+</table>
+
 {% endblock %}

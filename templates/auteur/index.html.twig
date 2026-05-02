@@ -1,0 +1,50 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des auteurs{% endblock %}
+
+{% block body %}
+
+<div class="container mt-4">
+
+    <h1 class="mb-4">📚 Liste des auteurs</h1>
+
+    {# FLASH MESSAGES #}
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <a href="{{ path('app_auteur_nouveau') }}" class="btn btn-success mb-3">
+        ➕ Ajouter un auteur
+    </a>
+
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Nom</th>
+                <th>Prénom</th>
+            </tr>
+        </thead>
+
+        <tbody>
+        {% for auteur in auteurs %}
+            <tr>
+                <td>{{ auteur.id }}</td>
+                <td>{{ auteur.nom }}</td>
+                <td>{{ auteur.prenom }}</td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="3" class="text-center">Aucun auteur trouvé</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+{% endblock %}

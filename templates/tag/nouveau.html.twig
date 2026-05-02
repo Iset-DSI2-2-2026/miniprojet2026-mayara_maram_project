@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block content %}
+
+<h1 class="mb-4">➕ Ajouter un tag</h1>
+
+<div class="card p-4 shadow">
+
+    {{ form_start(formulaire) }}
+
+        {{ form_row(formulaire.nom) }}
+        {{ form_row(formulaire.couleur) }}
+
+        <button class="btn btn-success w-100 mt-3">
+            💾 Enregistrer
+        </button>
+
+    {{ form_end(formulaire) }}
+
+</div>
+
+{% endblock %}

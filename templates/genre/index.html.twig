@@ -1,0 +1,52 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des genres{% endblock %}
+
+{% block body %}
+
+<div class="container mt-4">
+
+    <h1 class="mb-4">🎭 Liste des genres</h1>
+
+    {# FLASH MESSAGES #}
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endfor %}
+
+    <a href="{{ path('app_genre_nouveau') }}" class="btn btn-success mb-3">
+        ➕ Ajouter un genre
+    </a>
+
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Nom</th>
+            </tr>
+        </thead>
+
+        <tbody>
+        {% for genre in genres %}
+            <tr>
+                <td>{{ genre.id }}</td>
+                <td>
+                    <span class="badge bg-primary">
+                        {{ genre.nom }}
+                    </span>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="2" class="text-center">Aucun genre trouvé</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+{% endblock %}

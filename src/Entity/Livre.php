@@ -33,10 +33,10 @@ class Livre
  
     #[ORM\Column(length: 13)]
     #[Assert\NotBlank]
-    #[Assert\Regex(
-        pattern: '^(97[89])\d{10}$',
-        message: 'ISBN invalide (doit contenir 13 chiffres et commencer par 978 ou 979)'
-    )]
+  #[Assert\Regex(
+    pattern: '/^(97[89])\d{10}$/',
+    message: 'ISBN invalide (doit contenir 13 chiffres et commencer par 978 ou 979)'
+)]
     private ?string $isbn = null;
 
     #[ORM\Column]

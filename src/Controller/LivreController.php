@@ -11,71 +11,99 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/livre')]
 final class LivreController extends AbstractController
 {
-    #[Route(name: 'app_livre_index', methods: ['GET'])]
-    public function index(LivreRepository $livreRepository): Response
+    // 📚 LISTE DES LIVRES
+  #[Route('/livre', name: 'app_livres')]
+public function index(LivreRepository $livreRepository): Response
+{
+    $livres = $livreRepository->findAll();
+
+    return $this->render('livre/index.html.twig', [
+        'livres' => $livres,
+    ]);
+}
+
+    
+    // 👁️ DÉTAIL LIVRE
+     #[Route('/livres/{id}', name: 'app_livre_detail', requirements: ['id' => '\d+'])]
+    public function detail(Livre $livre): Response
     {
-        return $this->render('livre/index.html.twig', [
-            'livres' => $livreRepository->findAll(),
+        return $this->render('livre/detail.html.twig', [
+            'livre' => $livre,
         ]);
     }
 
-    #[Route('/new', name: 'app_livre_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+
+       // ➕ AJOUT LIVRE
+    #[Route('/livres/nouveau', name: 'app_livre_nouveau')]
+    public function nouveau(Request $request, EntityManagerInterface $em): Response
     {
         $livre = new Livre();
+
         $form = $this->createForm(LivreType::class, $livre);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($livre);
-            $entityManager->flush();
 
-            return $this->redirectToRoute('app_livre_index', [], Response::HTTP_SEE_OTHER);
+
+            $em->persist($livre);
+            $em->flush();
+
+            $this->addFlash('success', 'Livre ajouté avec succès !');
+
+            return $this->redirectToRoute('app_livres');
         }
 
-        return $this->render('livre/new.html.twig', [
-            'livre' => $livre,
-            'form' => $form,
+        return $this->render('livre/nouveau.html.twig', [
+            'formulaire' => $form,
         ]);
     }
 
-    #[Route('/{id}', name: 'app_livre_show', methods: ['GET'])]
-    public function show(Livre $livre): Response
-    {
-        return $this->render('livre/show.html.twig', [
-            'livre' => $livre,
-        ]);
-    }
 
-    #[Route('/{id}/edit', name: 'app_livre_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Livre $livre, EntityManagerInterface $entityManager): Response
+
+    // ✏️ MODIFIER LIVRE
+    #[Route('/livres/{id}/modifier', name: 'app_livre_modifier', requirements: ['id' => '\d+'])]
+    public function modifier(Livre $livre, Request $request, EntityManagerInterface $em): Response
     {
         $form = $this->createForm(LivreType::class, $livre);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
 
-            return $this->redirectToRoute('app_livre_index', [], Response::HTTP_SEE_OTHER);
+            $em->flush();
+
+            $this->addFlash('success', 'Livre modifié avec succès !');
+
+            return $this->redirectToRoute('app_livre_detail', [
+                'id' => $livre->getId()
+            ]);
         }
 
-        return $this->render('livre/edit.html.twig', [
+        return $this->render('livre/modifier.html.twig', [
+            'formulaire' => $form,
             'livre' => $livre,
-            'form' => $form,
         ]);
     }
 
-    #[Route('/{id}', name: 'app_livre_delete', methods: ['POST'])]
-    public function delete(Request $request, Livre $livre, EntityManagerInterface $entityManager): Response
+    // 🗑️ SUPPRIMER LIVRE (CSRF)
+    #[Route('/livres/{id}/supprimer', name: 'app_livre_supprimer', methods: ['POST'])]
+    public function supprimer(Livre $livre, Request $request, EntityManagerInterface $em): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$livre->getId(), $request->getPayload()->getString('_token'))) {
-            $entityManager->remove($livre);
-            $entityManager->flush();
+        if ($this->isCsrfTokenValid('supprimer_'.$livre->getId(), $request->request->get('_token'))) {
+
+            $em->remove($livre);
+            $em->flush();
+
+            $this->addFlash('success', 'Livre supprimé avec succès !');
+
+        } else {
+            $this->addFlash('danger', 'Token CSRF invalide.');
         }
 
-        return $this->redirectToRoute('app_livre_index', [], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('app_livres');
     }
 }
+
+    
+

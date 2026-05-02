@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+<h1>{{ livre.titre }}</h1>
+
+{% if livre.imageName %}
+    <img src="/uploads/livres/{{ livre.imageName }}" class="img-fluid mb-3">
+{% endif %}
+
+<p><strong>Auteur :</strong> {{ livre.auteur.nom }} {{ livre.auteur.prenom }}</p>
+
+<p>
+<strong>Genre :</strong>
+<span class="badge" style="background-color: {{ livre.genre.couleur }}">
+    {{ livre.genre.nom }}
+</span>
+</p>
+
+<p><strong>Pages :</strong> {{ livre.nbPages }}</p>
+
+<p><strong>ISBN :</strong> {{ livre.isbn }}</p>
+
+<p><strong>Résumé :</strong> {{ livre.resume }}</p>
+
+<p>
+<strong>Statut :</strong>
+{% if livre.disponible %}
+    <span class="badge bg-success">Disponible</span>
+{% else %}
+    <span class="badge bg-danger">Indisponible</span>
+{% endif %}
+</p>
+
+<p>
+<strong>Tags :</strong>
+{% for tag in livre.tags %}
+    <span class="badge" style="background-color: {{ tag.couleur }}">
+        {{ tag.nom }}
+    </span>
+{% endfor %}
+</p>
+
+{% endblock %}
