@@ -68,6 +68,10 @@ class Livre
     #[ORM\ManyToMany(targetEntity: Tag::class, inversedBy: 'livres')]
     private Collection $tags;
 
+    #[ORM\ManyToOne(inversedBy: 'livres')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $ajoutePar = null;
+
     public function __construct()
     {
         $this->tags = new ArrayCollection();
@@ -206,6 +210,18 @@ class Livre
     public function removeTag(Tag $tag): static
     {
         $this->tags->removeElement($tag);
+
+        return $this;
+    }
+
+    public function getAjoutePar(): ?User
+    {
+        return $this->ajoutePar;
+    }
+
+    public function setAjoutePar(?User $ajoutePar): static
+    {
+        $this->ajoutePar = $ajoutePar;
 
         return $this;
     }

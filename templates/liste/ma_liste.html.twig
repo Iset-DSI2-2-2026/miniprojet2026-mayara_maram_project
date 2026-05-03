@@ -1,0 +1,11 @@
+<h1>📖 Ma liste de lecture</h1>
+
+{% for livre in livres %}
+    <div class="card p-3 mb-2">
+        <h4>{{ livre.titre }}</h4>
+
+        <a href="{{ path('liste_remove', {'id': livre.id}) }}" class="btn btn-danger btn-sm">
+            ❌ Retirer
+        </a>
+    </div>
+{% endfor %}

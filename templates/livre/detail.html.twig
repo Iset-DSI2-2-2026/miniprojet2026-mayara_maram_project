@@ -64,34 +64,45 @@
         <hr>
 
         {# 🔘 ACTIONS #}
-        <div class="d-flex gap-2">
+      <div class="d-flex gap-2">
 
-            {# ✏️ Modifier #}
-            <a href="{{ path('app_livre_modifier', {id: livre.id}) }}"
-               class="btn btn-warning">
-                ✏️ Modifier
-            </a>
+    {# ✏️ Modifier (propriétaire ou admin) #}
+    {% if app.user and (app.user == livre.ajoutePar or is_granted('ROLE_ADMIN')) %}
+        <a href="{{ path('app_livre_modifier', {id: livre.id}) }}"
+           class="btn btn-warning">
+            ✏️ Modifier
+        </a>
+    {% endif %}
 
-            {# 🗑️ Supprimer #}
-            <form method="post"
-                  action="{{ path('app_livre_supprimer', {id: livre.id}) }}"
-                  onsubmit="return confirm('Voulez-vous vraiment supprimer ce livre ?');">
+    {# 🗑️ Supprimer (propriétaire ou admin) #}
+    {% if app.user and (app.user == livre.ajoutePar or is_granted('ROLE_ADMIN')) %}
+        <form method="post"
+              action="{{ path('app_livre_supprimer', {id: livre.id}) }}"
+              onsubmit="return confirm('Voulez-vous vraiment supprimer ce livre ?');">
 
-                <input type="hidden"
-                       name="_token"
-                       value="{{ csrf_token('supprimer_' ~ livre.id) }}">
+            <input type="hidden"
+                   name="_token"
+                   value="{{ csrf_token('supprimer_' ~ livre.id) }}">
 
-                <button class="btn btn-danger">
-                    🗑️ Supprimer
-                </button>
-            </form>
+            <button class="btn btn-danger">
+                🗑️ Supprimer
+            </button>
+        </form>
+    {% endif %}
 
-            {# 📚 retour liste #}
-            <a href="{{ path('app_livres') }}" class="btn btn-secondary">
-                ⬅ Retour
-            </a>
+    {# ➕ Ajouter (bibliothécaire seulement) #}
+    {% if is_granted('ROLE_BIBLIOTHECAIRE') %}
+        <a href="{{ path('app_livre_nouveau') }}" class="btn btn-success">
+            ➕ Ajouter
+        </a>
+    {% endif %}
 
-        </div>
+    {# 📚 Retour #}
+    <a href="{{ path('app_livres') }}" class="btn btn-secondary">
+        ⬅ Retour
+    </a>
+
+</div>
 
     </div>
 
