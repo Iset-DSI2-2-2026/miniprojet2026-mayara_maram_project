@@ -1,25 +1,36 @@
 <?php
 
 namespace App\Entity;
+use ApiPlatform\Metadata\ApiResource;
 use App\Repository\LivreRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: LivreRepository::class)]
+
+
+#[ApiResource(
+    normalizationContext: ['groups' => ['livre:read']],
+    denormalizationContext: ['groups' => ['livre:write']]
+)]
+
 class Livre
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    // #[Groups(['livre:read'])]
     private ?int $id = null;
 
  
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank]
     #[Assert\Length(min: 3, max: 255)]
+    #[Groups(['livre:read', 'livre:write'])]
     private ?string $titre = null;
 
 
@@ -27,6 +38,7 @@ class Livre
     #[ORM\Column(type: Types::TEXT)]
      #[Assert\NotBlank]
     #[Assert\Length(min: 20)]
+    #[Groups(['livre:read', 'livre:write'])]
     private ?string $resume = null;
 
 
@@ -37,35 +49,42 @@ class Livre
     pattern: '/^(97[89])\d{10}$/',
     message: 'ISBN invalide (doit contenir 13 chiffres et commencer par 978 ou 979)'
 )]
+#[Groups(['livre:read', 'livre:write'])]
     private ?string $isbn = null;
 
     #[ORM\Column]
     #[Assert\NotNull]
     #[Assert\Range(min: 1, max: 5000)]
+    #[Groups(['livre:read', 'livre:write'])]
     private ?int $nbPages = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     #[Assert\NotNull]
+    #[Groups(['livre:read', 'livre:write'])]
     private ?\DateTime $datePublication = null;
 
     #[ORM\Column]
-    private ?bool $disponible = null;
+    #[Groups(['livre:read', 'livre:write'])]
 
+    private ?bool $disponible = null;
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $imageName = null;
 
     #[ORM\ManyToOne(inversedBy: 'livres')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['livre:read'])]
     private ?Auteur $auteur = null;
 
     #[ORM\ManyToOne(inversedBy: 'livres')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['livre:read'])]
     private ?Genre $genre = null;
 
     /**
      * @var Collection<int, Tag>
      */
     #[ORM\ManyToMany(targetEntity: Tag::class, inversedBy: 'livres')]
+   #[Groups(['livre:read'])]
     private Collection $tags;
 
     #[ORM\ManyToOne(inversedBy: 'livres')]

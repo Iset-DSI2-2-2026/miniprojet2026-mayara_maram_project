@@ -2,14 +2,20 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
 use App\Repository\GenreRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: GenreRepository::class)]
+#[ApiResource(
+    normalizationContext: ['groups' => ['genre:read']],
+    denormalizationContext: ['groups' => ['genre:write']]
+)]
 class Genre
 {
     #[ORM\Id]
@@ -19,6 +25,7 @@ class Genre
 
     #[ORM\Column(length: 50, unique: true)]
      #[Assert\NotBlank]
+     #[Groups(['genre:read', 'genre:write', 'livre:read'])]
     private ?string $nom = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]

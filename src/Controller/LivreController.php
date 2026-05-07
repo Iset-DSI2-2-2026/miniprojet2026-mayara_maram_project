@@ -7,6 +7,8 @@ use App\Form\LivreType;
 use App\Repository\GenreRepository;
 use App\Repository\LivreRepository;
 use App\Repository\TagRepository;
+use App\Service\BibliothequeStats;
+use App\Service\FileUploader;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -20,6 +22,21 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class LivreController extends AbstractController
 {
+
+
+    private BibliothequeStats $stats;
+
+    // ✅ Injection par constructeur (version classique)
+    public function __construct(BibliothequeStats $stats)
+    {
+        $this->stats = $stats;
+    }
+
+
+
+
+
+
     // 📚 LISTE DES LIVRES
 //   #[Route('/livre', name: 'app_livres')]
 // public function index(LivreRepository $livreRepository): Response
@@ -69,6 +86,10 @@ public function index(
         'livres' => $livres,
         'genres' => $genreRepository->findAll(), // ✅ AJOUT
         'tags' => $tagRepository->findAll(),     // ✅ AJOUT
+         'totalLivres' => $this->stats->getTotalLivres(),
+            'livresDispo' => $this->stats->getLivresDisponibles(),
+            'livresParGenre' => $this->stats->getLivresParGenre(),
+            'tempsLecture' => $this->stats->getTempsLectureTotal(),
     ]);
 }
 
@@ -88,14 +109,19 @@ public function index(
      #[IsGranted('ROLE_BIBLIOTHECAIRE')]
 
     #[Route('/livres/nouveau', name: 'app_livre_nouveau')]
-    public function nouveau(Request $request, EntityManagerInterface $em, MailerInterface $mailer): Response
+    public function nouveau(Request $request, EntityManagerInterface $em, MailerInterface $mailer, FileUploader $fileUploader ): Response
     {
         $livre = new Livre();
         $form = $this->createForm(LivreType::class, $livre);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $imageFile = $form->get('imageFile')->getData();
 
+                if ($imageFile) {
+                    $fileName = $fileUploader->upload($imageFile);
+                    $livre->setImageName($fileName);
+                }
               $livre->setAjoutePar($this->getUser());
 
             $em->persist($livre);
@@ -127,7 +153,7 @@ public function index(
     // ✏️ MODIFIER LIVRE
     #[IsGranted('ROLE_USER')]
     #[Route('/livres/{id}/modifier', name: 'app_livre_modifier', requirements: ['id' => '\d+'])]
-    public function modifier(Livre $livre, Request $request, EntityManagerInterface $em): Response
+    public function modifier(Livre $livre, Request $request, EntityManagerInterface $em, FileUploader $fileUploader): Response
     {
           if ($this->getUser() !== $livre->getAjoutePar() && !$this->isGranted('ROLE_ADMIN')) {
         throw $this->createAccessDeniedException('Accès refusé');
@@ -136,7 +162,19 @@ public function index(
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+$imageFile = $form->get('imageFile')->getData();
 
+if ($imageFile) {
+
+    // supprimer ancienne image
+    if ($livre->getImageName()) {
+        $fileUploader->remove($livre->getImageName());
+    }
+
+    // upload nouvelle
+    $fileName = $fileUploader->upload($imageFile);
+    $livre->setImageName($fileName);
+}
             $em->flush();
 
             $this->addFlash('success', 'Livre modifié avec succès !');
@@ -155,13 +193,18 @@ public function index(
     // 🗑️ SUPPRIMER LIVRE (CSRF)
     #[IsGranted('ROLE_USER')]
     #[Route('/livres/{id}/supprimer', name: 'app_livre_supprimer', methods: ['POST'])]
-    public function supprimer(Livre $livre, Request $request, EntityManagerInterface $em): Response
+    public function supprimer(Livre $livre, Request $request, EntityManagerInterface $em  , FileUploader $fileUploader): Response
     {
         if ($this->getUser() !== $livre->getAjoutePar() && !$this->isGranted('ROLE_ADMIN')) {
         throw $this->createAccessDeniedException('Accès refusé');
     }
         if ($this->isCsrfTokenValid('supprimer_'.$livre->getId(), $request->request->get('_token'))) {
+     // 🖼️ 1. SUPPRESSION IMAGE PHYSIQUE (AVANT DB)
+        if ($livre->getImageName()) {
+            $fileUploader->remove($livre->getImageName());
+        }
 
+        // 🗑️ 2. SUPPRESSION EN BASE
             $em->remove($livre);
             $em->flush();
 
