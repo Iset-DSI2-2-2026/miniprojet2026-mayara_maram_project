@@ -6,6 +6,7 @@ use App\Entity\Genre;
 use App\Entity\Livre;
 use App\Entity\Tag;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -18,7 +19,7 @@ class LivreRepository extends ServiceEntityRepository
         parent::__construct($registry, Livre::class);
     }
 
-public function findByFilters(?string $titre, ?Genre $genre, ?bool $disponible, ?Tag $tag): array
+public function findByFilters(?string $titre, ?Genre $genre, ?bool $disponible, ?Tag $tag): QueryBuilder
 {
     $qb = $this->createQueryBuilder('l');
 
@@ -48,9 +49,11 @@ public function findByFilters(?string $titre, ?Genre $genre, ?bool $disponible, 
     }
 
     // 📅 Tri des résultats (plus récents en premier)
-    return $qb->orderBy('l.datePublication', 'DESC')
-              ->getQuery()
-              ->getResult();
+    //return initial
+    // return $qb->orderBy('l.datePublication', 'DESC')
+    //           ->getQuery()
+    //           ->getResult();
+    return $qb->orderBy('l.datePublication', 'DESC');
 }
 
 

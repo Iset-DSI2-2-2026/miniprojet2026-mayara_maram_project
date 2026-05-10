@@ -46,7 +46,8 @@ final class TagController extends AbstractController
         }
 
         return $this->render('tag/nouveau.html.twig', [
-            'formulaire' => $form->createView(),
+            // 'formulaire' => $form->createView(),
+            'formulaire' => $form,
         ]);
     }
 

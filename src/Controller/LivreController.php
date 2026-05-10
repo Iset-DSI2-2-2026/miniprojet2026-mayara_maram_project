@@ -10,6 +10,7 @@ use App\Repository\TagRepository;
 use App\Service\BibliothequeStats;
 use App\Service\FileUploader;
 use Doctrine\ORM\EntityManagerInterface;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Loader\Configurator\mailer;
@@ -54,7 +55,9 @@ public function index(
     Request $request,
     LivreRepository $livreRepository,
     GenreRepository $genreRepository,
-    TagRepository $tagRepository
+    TagRepository $tagRepository,
+    PaginatorInterface $paginator
+
 ): Response {
 
     // 🔍 récupérer filtres
@@ -75,13 +78,28 @@ public function index(
     }
 
     // 🔥 appel repository
-    $livres = $livreRepository->findByFilters(
-        $titre,
-        $genre,
-        $disponible,
-        $tag
-    );
+    // $livres = $livreRepository->findByFilters(
+    //     $titre,
+    //     $genre,
+    //     $disponible,
+    //     $tag
+    // );
 
+    // 🔥 appel repository
+$query = $livreRepository->findByFilters(
+    $titre,
+    $genre,
+    $disponible,
+    $tag
+);
+    // 📄 pagination
+        $livres = $paginator->paginate(
+            $query,
+            $request->query->getInt('page', 1),
+            10
+        );
+
+    
     return $this->render('livre/index.html.twig', [
         'livres' => $livres,
         'genres' => $genreRepository->findAll(), // ✅ AJOUT
@@ -226,7 +244,6 @@ public function addToList(int $id, RequestStack $requestStack): Response
     // récupérer liste existante ou tableau vide
     $liste = $session->get('reading_list', []);
 
-    // ❌ empêcher les doublons
     if (!in_array($id, $liste)) {
         $liste[] = $id;
     }
@@ -245,8 +262,12 @@ public function removeFromList(int $id, RequestStack $requestStack): Response
     $liste = $session->get('reading_list', []);
 
     // supprimer l'id
-    $liste = array_filter($liste, fn($item) => $item != $id);
-
+    // $liste = array_filter($liste, fn($item) => $item != $id);
+foreach ($liste as $key => $item) {
+    if ($item == $id) {
+        unset($liste[$key]);
+    }
+}
     $session->set('reading_list', $liste);
 
     return $this->redirectToRoute('ma_liste');
